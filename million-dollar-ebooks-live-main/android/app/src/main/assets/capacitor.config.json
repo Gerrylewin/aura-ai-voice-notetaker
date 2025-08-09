@@ -1,0 +1,23 @@
+{
+	"appId": "app.lovable.b955570b335046b69c6c77fba61a9c56",
+	"appName": "Million Dollar eBooks",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 2000,
+			"launchAutoHide": true,
+			"backgroundColor": "#000000",
+			"androidSplashResourceName": "splash",
+			"androidScaleType": "CENTER_CROP",
+			"showSpinner": false,
+			"splashFullScreen": true,
+			"splashImmersive": true
+		},
+		"StatusBar": {
+			"style": "DARK"
+		}
+	}
+}
