@@ -3,8 +3,10 @@ import { HomeScreen } from './components/HomeScreen';
 import { NoteScreen } from './components/NoteScreen';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { AuthScreen } from './components/AuthScreen';
+import { AuthModal } from './components/AuthModal';
 import { MenuIcon } from './components/icons';
-import { getConversations, saveConversation, deleteConversation as deleteConversationFromDB } from './services/firestoreService';
+import { getConversations as getConversationsFromDB, saveConversation as saveConversationToDB, deleteConversation as deleteConversationFromDB } from './services/firestoreService';
+import { getLocalConversations, saveLocalConversation, deleteLocalConversation } from './services/localStorageService';
 import { Loader } from './components/Loader';
 import { Sidebar } from './components/Sidebar';
 
@@ -14,11 +16,13 @@ const AppContent = () => {
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   useEffect(() => {
+    setIsLoadingNotes(true);
+    setActiveConversationId(null);
     if (user) {
-      setIsLoadingNotes(true);
-      getConversations(user.uid)
+      getConversationsFromDB(user.uid)
         .then(fetchedConversations => {
           setConversations(fetchedConversations);
         })
@@ -30,56 +34,64 @@ const AppContent = () => {
           setIsLoadingNotes(false);
         });
     } else {
-      // Clear data when user logs out
-      setConversations([]);
-      setActiveConversationId(null);
+      setConversations(getLocalConversations());
       setIsLoadingNotes(false);
     }
   }, [user]);
 
-  const handleSaveConversation = useCallback(async (conversation) => {
-    if (!user) return;
-    try {
-      await saveConversation(user.uid, conversation);
-      const existingIndex = conversations.findIndex(c => c.id === conversation.id);
-      let newConversations;
-      if (existingIndex > -1) {
-        newConversations = [...conversations];
-        newConversations[existingIndex] = conversation;
-      } else {
-        newConversations = [conversation, ...conversations];
-      }
-      setConversations(newConversations);
-    } catch (error) {
-      console.error("Failed to save conversation:", error);
+  // Close auth modal on successful login
+  useEffect(() => {
+    if (user) {
+      setIsAuthModalOpen(false);
     }
+  }, [user]);
+
+  const handleSaveConversation = useCallback(async (conversation) => {
+    if (user) {
+      await saveConversationToDB(user.uid, conversation);
+    } else {
+      saveLocalConversation(conversation);
+    }
+
+    const existingIndex = conversations.findIndex(c => c.id === conversation.id);
+    let newConversations;
+    if (existingIndex > -1) {
+      newConversations = [...conversations];
+      newConversations[existingIndex] = conversation;
+    } else {
+      newConversations = [conversation, ...conversations];
+    }
+    setConversations(newConversations);
   }, [conversations, user]);
   
   const handleNewConversation = useCallback(async (conversation) => {
-    if (!user) return;
-    try {
-      const savedConversation = await saveConversation(user.uid, conversation);
-      const newConversations = [savedConversation, ...conversations];
-      setConversations(newConversations);
-      setActiveConversationId(savedConversation.id);
-    } catch (error) {
-      console.error("Failed to create new conversation:", error);
+    let savedConversation;
+    if (user) {
+        savedConversation = await saveConversationToDB(user.uid, conversation);
+    } else {
+        savedConversation = saveLocalConversation(conversation);
     }
+
+    const newConversations = [savedConversation, ...conversations];
+    setConversations(newConversations);
+    setActiveConversationId(savedConversation.id);
   }, [conversations, user]);
 
   const handleDeleteConversation = useCallback(async (id) => {
-    if (!user) return;
     const originalConversations = conversations;
     const newConversations = conversations.filter(c => c.id !== id);
     setConversations(newConversations);
     try {
-      await deleteConversationFromDB(user.uid, id);
+      if (user) {
+        await deleteConversationFromDB(user.uid, id);
+      } else {
+        deleteLocalConversation(id);
+      }
       if (activeConversationId === id) {
         setActiveConversationId(null);
       }
     } catch (error) {
       console.error("Failed to delete conversation:", error);
-      // Revert if delete fails
       setConversations(originalConversations);
     }
   }, [conversations, user, activeConversationId]);
@@ -92,10 +104,6 @@ const AppContent = () => {
     );
   }
 
-  if (!user) {
-    return <AuthScreen />;
-  }
-
   const activeConversation = conversations.find(c => c.id === activeConversationId);
 
   return (
@@ -106,6 +114,7 @@ const AppContent = () => {
             onSelectConversation={setActiveConversationId}
             onDeleteConversation={handleDeleteConversation}
             onLogout={logout}
+            onLoginClick={() => setIsAuthModalOpen(true)}
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
         />
@@ -137,6 +146,11 @@ const AppContent = () => {
                 }
             </main>
         </div>
+        {isAuthModalOpen && (
+            <AuthModal onClose={() => setIsAuthModalOpen(false)}>
+                <AuthScreen />
+            </AuthModal>
+        )}
     </div>
   );
 };

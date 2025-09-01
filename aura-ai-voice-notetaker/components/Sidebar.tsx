@@ -8,6 +8,7 @@ export const Sidebar = ({
     onSelectConversation, 
     onDeleteConversation, 
     onLogout, 
+    onLoginClick,
     isOpen, 
     onClose 
 }) => {
@@ -56,19 +57,29 @@ export const Sidebar = ({
                     />
                 </nav>
 
-                <footer className="p-4 border-t border-gray-700 flex-shrink-0 space-y-3">
-                     <div className="flex items-center gap-3">
-                         <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold">
-                             {user.email.charAt(0).toUpperCase()}
-                         </div>
-                         <span className="text-sm text-gray-300 truncate">{user.email}</span>
-                     </div>
-                     <div className="flex items-center justify-start text-gray-400">
-                        <button onClick={onLogout} className="flex items-center gap-2 hover:text-white transition-colors text-sm" title="Logout">
-                            <LogoutIcon className="w-5 h-5" />
-                            <span>Logout</span>
+                <footer className="p-4 border-t border-gray-700 flex-shrink-0">
+                    {user ? (
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold">
+                                    {user.email.charAt(0).toUpperCase()}
+                                </div>
+                                <span className="text-sm text-gray-300 truncate">{user.email}</span>
+                            </div>
+                            <div className="flex items-center justify-start text-gray-400">
+                                <button onClick={onLogout} className="flex items-center gap-2 hover:text-white transition-colors text-sm" title="Logout">
+                                    <LogoutIcon className="w-5 h-5" />
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <button 
+                            onClick={onLoginClick}
+                            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Login / Sign Up
                         </button>
-                     </div>
+                    )}
                 </footer>
             </aside>
         </>
