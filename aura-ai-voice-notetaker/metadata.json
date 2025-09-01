@@ -1,0 +1,7 @@
+{
+  "name": "Aura - AI Voice Notetaker",
+  "description": "An AI-powered voice recorder and note-taking application that transforms recordings into actionable, polished notes using prompts. Capture thoughts, meetings, and conversations effortlessly, then interact with the AI to summarize, translate, or refine your notes.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
