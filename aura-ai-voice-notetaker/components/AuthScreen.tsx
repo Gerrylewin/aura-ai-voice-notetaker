@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
-type AuthMode = 'login' | 'signup';
-
-export const AuthScreen: React.FC = () => {
-  const [mode, setMode] = useState<AuthMode>('login');
+export const AuthScreen = () => {
+  const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { login, signup } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
@@ -21,13 +19,14 @@ export const AuthScreen: React.FC = () => {
         } else {
             await signup(email, password);
         }
-    } catch (err: any) {
+    } catch (err) {
         // Firebase provides more user-friendly error messages
         let message = 'An unexpected error occurred.';
         if (err.code) {
             switch (err.code) {
                 case 'auth/user-not-found':
                 case 'auth/wrong-password':
+                case 'auth/invalid-credential':
                     message = 'Invalid email or password.';
                     break;
                 case 'auth/email-already-in-use':
@@ -63,9 +62,12 @@ export const AuthScreen: React.FC = () => {
           <p className="text-gray-400 mt-2">Your AI-Powered Voice Notetaker</p>
         </header>
         <div className="w-full max-w-sm p-8 bg-gray-800 rounded-2xl shadow-2xl">
-            <h2 className="text-2xl font-semibold text-center mb-6">
+            <h2 className="text-2xl font-semibold text-center mb-2">
                 {mode === 'login' ? 'Welcome Back' : 'Create Account'}
             </h2>
+            <p className="text-center text-gray-400 text-sm mb-6">
+                {mode === 'login' ? 'Log in to see your past conversations.' : 'Sign up to save your voice notes.'}
+            </p>
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-400">Email Address</label>

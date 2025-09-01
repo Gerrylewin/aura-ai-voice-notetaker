@@ -1,31 +1,28 @@
-
 import React, { useState, useCallback } from 'react';
-import { Conversation, RecordingState } from '../types';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { RecordButton } from './RecordButton';
-import { ConversationList } from './ConversationList';
 import { analyzeTranscript, transcribeAudio } from '../services/geminiService';
 import { Loader } from './Loader';
 
-interface HomeScreenProps {
-  conversations: Conversation[];
-  onNewConversation: (conversation: Conversation) => void;
-  onSelectConversation: (id: string) => void;
-  onDeleteConversation: (id: string) => void;
-}
+export const HomeScreen = ({ onNewConversation }) => {
+  const [error, setError] = useState(null);
+  const [recordingState, setRecordingState] = useState('idle');
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ conversations, onNewConversation, onSelectConversation, onDeleteConversation }) => {
-  const [error, setError] = useState<string | null>(null);
-  const [recordingState, setRecordingState] = useState<RecordingState>('idle');
-
-  const handleRecordingStop = useCallback(async (audioBlob: Blob) => {
+  const handleRecordingStop = useCallback(async (audioBlob) => {
     setRecordingState('transcribing');
     setError(null);
     try {
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       reader.onloadend = async () => {
-        const base64Audio = (reader.result as string).split(',')[1];
+        // FIX: Add type-check for reader.result as it can be an ArrayBuffer.
+        if (typeof reader.result !== 'string') {
+          console.error("FileReader result is not a string.");
+          setError("There was an error processing the recording.");
+          setRecordingState('error');
+          return;
+        }
+        const base64Audio = reader.result.split(',')[1];
         const transcript = await transcribeAudio(base64Audio, audioBlob.type);
         
         if (!transcript || transcript.trim().length === 0) {
@@ -37,7 +34,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ conversations, onNewConv
         setRecordingState('analyzing');
         const { title, ...analysis } = await analyzeTranscript(transcript);
 
-        const newConversation: Conversation = {
+        const newConversation = {
           id: new Date().toISOString(),
           title: title,
           createdAt: new Date().toISOString(),
@@ -87,19 +84,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ conversations, onNewConv
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-full max-w-md p-8 bg-gray-800 rounded-2xl shadow-2xl mb-8 flex flex-col items-center">
+    <div className="flex flex-col items-center justify-center h-full p-4">
+      <div className="w-full max-w-md p-8 bg-gray-800 rounded-2xl shadow-2xl flex flex-col items-center text-center">
         <RecordButton isRecording={isRecording} onClick={handleRecordClick} />
-        <p className={`mt-6 text-center text-gray-400 h-10 flex items-center justify-center transition-opacity duration-300`}>
+        <p className={`mt-6 text-gray-400 h-10 flex items-center justify-center transition-opacity duration-300`}>
           {(recordingState === 'transcribing' || recordingState === 'analyzing') ? <Loader message={getStatusMessage()} /> : getStatusMessage()}
         </p>
       </div>
-
-      <ConversationList 
-        conversations={conversations}
-        onSelectConversation={onSelectConversation}
-        onDeleteConversation={onDeleteConversation}
-      />
+       <div className="mt-8 text-gray-500 text-center max-w-sm">
+        <p>Start a new note by tapping the microphone, or select a previous note from the sidebar.</p>
+      </div>
     </div>
   );
 };

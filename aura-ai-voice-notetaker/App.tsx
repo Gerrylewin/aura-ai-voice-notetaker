@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { HomeScreen } from './components/HomeScreen';
 import { NoteScreen } from './components/NoteScreen';
-import { Conversation } from './types';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { AuthScreen } from './components/AuthScreen';
-import { LogoutIcon } from './components/icons';
+import { MenuIcon } from './components/icons';
 import { getConversations, saveConversation, deleteConversation as deleteConversationFromDB } from './services/firestoreService';
 import { Loader } from './components/Loader';
+import { Sidebar } from './components/Sidebar';
 
-const AppContent: React.FC = () => {
-  const { user, loading: authLoading } = useAuth();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+const AppContent = () => {
+  const { user, logout, loading: authLoading } = useAuth();
+  const [conversations, setConversations] = useState([]);
+  const [activeConversationId, setActiveConversationId] = useState(null);
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -36,7 +37,7 @@ const AppContent: React.FC = () => {
     }
   }, [user]);
 
-  const handleSaveConversation = useCallback(async (conversation: Conversation) => {
+  const handleSaveConversation = useCallback(async (conversation) => {
     if (!user) return;
     try {
       await saveConversation(user.uid, conversation);
@@ -54,7 +55,7 @@ const AppContent: React.FC = () => {
     }
   }, [conversations, user]);
   
-  const handleNewConversation = useCallback(async (conversation: Conversation) => {
+  const handleNewConversation = useCallback(async (conversation) => {
     if (!user) return;
     try {
       const savedConversation = await saveConversation(user.uid, conversation);
@@ -66,7 +67,7 @@ const AppContent: React.FC = () => {
     }
   }, [conversations, user]);
 
-  const handleDeleteConversation = useCallback(async (id: string) => {
+  const handleDeleteConversation = useCallback(async (id) => {
     if (!user) return;
     const originalConversations = conversations;
     const newConversations = conversations.filter(c => c.id !== id);
@@ -98,47 +99,50 @@ const AppContent: React.FC = () => {
   const activeConversation = conversations.find(c => c.id === activeConversationId);
 
   return (
-    <div className="bg-gray-900 text-gray-100 min-h-screen font-sans">
-      <div className="container mx-auto max-w-4xl p-4">
-        <header className="flex justify-between items-center py-6">
-          <h1 
-            className="text-4xl font-bold tracking-tighter cursor-pointer"
-            onClick={() => setActiveConversationId(null)}
-          >
-            Aura
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-400 text-sm hidden sm:block">{user.email}</span>
-            <button onClick={useAuth().logout} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors" title="Logout">
-              <LogoutIcon className="w-6 h-6" />
-            </button>
-          </div>
-        </header>
-        <main>
-          {isLoadingNotes ? <div className="text-center mt-10"><Loader message="Loading your notes..." /></div> :
-            activeConversation ? (
-              <NoteScreen 
-                  conversation={activeConversation}
-                  onSave={handleSaveConversation}
-                  onBack={() => setActiveConversationId(null)}
-              />
-            ) : (
-              <HomeScreen
-                conversations={conversations}
-                onNewConversation={handleNewConversation}
-                onSelectConversation={setActiveConversationId}
-                onDeleteConversation={handleDeleteConversation}
-              />
-            )
-          }
-        </main>
-      </div>
+    <div className="bg-gray-900 text-gray-100 h-screen font-sans flex">
+        <Sidebar
+            user={user}
+            conversations={conversations}
+            onSelectConversation={setActiveConversationId}
+            onDeleteConversation={handleDeleteConversation}
+            onLogout={logout}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+        />
+        <div className="flex-1 flex flex-col overflow-hidden">
+             {/* Mobile Header */}
+            <header className="md:hidden flex justify-between items-center p-4 bg-gray-900 border-b border-gray-700 sticky top-0 z-10">
+                <h1 className="text-xl font-semibold truncate">
+                    {activeConversation ? activeConversation.title : 'New Note'}
+                </h1>
+                <button onClick={() => setIsSidebarOpen(true)} className="p-1 text-gray-400 hover:text-white" aria-label="Open menu">
+                    <MenuIcon className="w-6 h-6" />
+                </button>
+            </header>
+
+            <main className="flex-1 overflow-y-auto">
+                {isLoadingNotes ? 
+                    <div className="h-full flex items-center justify-center"><Loader message="Loading your notes..." /></div> :
+                    activeConversation ? (
+                        <NoteScreen 
+                            conversation={activeConversation}
+                            onSave={handleSaveConversation}
+                            onNewConversation={handleNewConversation}
+                        />
+                    ) : (
+                        <HomeScreen
+                            onNewConversation={handleNewConversation}
+                        />
+                    )
+                }
+            </main>
+        </div>
     </div>
   );
 };
 
 
-const App: React.FC = () => (
+const App = () => (
   <AuthProvider>
     <AppContent />
   </AuthProvider>

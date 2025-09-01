@@ -1,13 +1,7 @@
-
 import React from 'react';
 import { MicIcon, StopIcon } from './icons';
 
-interface RecordButtonProps {
-  isRecording: boolean;
-  onClick: () => void;
-}
-
-export const RecordButton: React.FC<RecordButtonProps> = ({ isRecording, onClick }) => {
+export const RecordButton = ({ isRecording, onClick }) => {
   return (
     <button
       onClick={onClick}

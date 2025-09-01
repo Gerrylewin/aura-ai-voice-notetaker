@@ -1,6 +1,4 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
-import { ChatMessage, AIAnalysis } from "../types";
 import { GEMINI_MODEL } from "../constants";
 
 if (!process.env.API_KEY) {
@@ -9,7 +7,7 @@ if (!process.env.API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-export async function transcribeAudio(base64Audio: string, mimeType: string): Promise<string> {
+export async function transcribeAudio(base64Audio, mimeType) {
   try {
     const audioPart = {
       inlineData: {
@@ -46,7 +44,7 @@ const analysisSchema = {
     required: ["title", "summary", "sentiment", "keyTopics", "actionItems", "questions"]
 };
 
-export async function analyzeTranscript(transcript: string): Promise<AIAnalysis & { title: string }> {
+export async function analyzeTranscript(transcript) {
     try {
         if (!transcript.trim()) {
             return {
@@ -68,7 +66,7 @@ export async function analyzeTranscript(transcript: string): Promise<AIAnalysis 
         const jsonStr = response.text.trim();
         const cleanedJsonStr = jsonStr.replace(/^```json\n?/, '').replace(/\n?```$/, '');
         const parsed = JSON.parse(cleanedJsonStr);
-        return parsed as AIAnalysis & { title: string };
+        return parsed;
     } catch (error) {
         console.error("Error in analyzeTranscript:", error);
         return {
@@ -82,7 +80,7 @@ export async function analyzeTranscript(transcript: string): Promise<AIAnalysis 
     }
 }
 
-export async function continueConversation(history: ChatMessage[]): Promise<string> {
+export async function continueConversation(history) {
    try {
     const formattedHistory = history.map(msg => ({
         role: msg.role,

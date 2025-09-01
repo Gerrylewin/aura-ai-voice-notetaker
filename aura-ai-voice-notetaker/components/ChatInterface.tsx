@@ -1,18 +1,10 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { ChatMessage } from '../types';
 import { SendIcon, AuraIcon } from './icons';
 import { Loader } from './Loader';
 
-interface ChatInterfaceProps {
-  messages: ChatMessage[];
-  isLoading: boolean;
-  onSendMessage: (message: string) => void;
-}
-
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoading, onSendMessage }) => {
+export const ChatInterface = ({ messages, isLoading, onSendMessage }) => {
   const [input, setInput] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -20,7 +12,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoadin
 
   useEffect(scrollToBottom, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     onSendMessage(input);
     setInput('');

@@ -1,10 +1,9 @@
-
 import { useState, useRef, useCallback } from 'react';
 
-export const useAudioRecorder = (onStop: (audioBlob: Blob) => void) => {
+export const useAudioRecorder = (onStop) => {
   const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   const startRecording = useCallback(async () => {
     if (isRecording) return;

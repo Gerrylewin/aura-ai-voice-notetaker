@@ -1,11 +1,6 @@
-
 import React from 'react';
 
-interface LoaderProps {
-    message?: string;
-}
-
-export const Loader: React.FC<LoaderProps> = ({ message }) => {
+export const Loader = ({ message }: { message?: string }) => {
   return (
     <div className="flex items-center justify-center space-x-2">
         <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse [animation-delay:-0.3s]"></div>

@@ -1,36 +1,17 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { auth } from '../services/firebase';
-import { 
-    onAuthStateChanged,
-    User as FirebaseUser,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
-} from 'firebase/auth';
 
-interface User {
-  email: string;
-  uid: string;
-}
+const AuthContext = createContext(undefined);
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+    // FIX: Use v8 namespaced API for onAuthStateChanged
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       if (firebaseUser) {
-        setUser({ email: firebaseUser.email!, uid: firebaseUser.uid });
+        setUser({ email: firebaseUser.email, uid: firebaseUser.uid });
       } else {
         setUser(null);
       }
@@ -41,16 +22,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+  const login = useCallback(async (email, password) => {
+    // FIX: Use v8 namespaced API for signInWithEmailAndPassword
+    await auth.signInWithEmailAndPassword(email, password);
   }, []);
 
-  const signup = useCallback(async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+  const signup = useCallback(async (email, password) => {
+    // FIX: Use v8 namespaced API for createUserWithEmailAndPassword
+    await auth.createUserWithEmailAndPassword(email, password);
   }, []);
 
   const logout = useCallback(async () => {
-    await signOut(auth);
+    // FIX: Use v8 namespaced API for signOut
+    await auth.signOut();
   }, []);
 
   return (
