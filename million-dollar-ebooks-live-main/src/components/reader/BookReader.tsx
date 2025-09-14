@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { EnhancedBookReader } from './EnhancedBookReader';
+import { ModernBookReader } from './ModernBookReader';
 
 interface BookReaderProps {
   content: string;
@@ -11,7 +11,7 @@ interface BookReaderProps {
 
 export function BookReader({ content, title, bookId, onClose }: BookReaderProps) {
   return (
-    <EnhancedBookReader
+    <ModernBookReader 
       content={content}
       title={title}
       bookId={bookId}

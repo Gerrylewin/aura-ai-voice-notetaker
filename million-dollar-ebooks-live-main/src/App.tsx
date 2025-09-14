@@ -9,6 +9,7 @@ import { usePostHog } from "@/hooks/usePostHog";
 import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
 import { ThirdwebProvider } from "@/providers/ThirdwebProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { Layout } from "@/components/layout/Layout";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Stories from "./pages/Stories";
@@ -46,29 +47,29 @@ function App() {
               <div className="min-h-screen bg-background font-sans antialiased">
                 <Routes>
                   <Route path="/" element={<Index />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/stories" element={<Stories />} />
-                  <Route path="/discover" element={<Discover />} />
-                  <Route path="/library" element={<Library />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/chat" element={<Chat />} />
-                  <Route path="/upload" element={<Upload />} />
-                  <Route path="/write" element={<Write />} />
+                  <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+                  <Route path="/stories" element={<Layout><Stories /></Layout>} />
+                  <Route path="/discover" element={<Layout><Discover /></Layout>} />
+                  <Route path="/library" element={<Layout><Library /></Layout>} />
+                  <Route path="/settings" element={<Layout><Settings /></Layout>} />
+                  <Route path="/chat" element={<Layout><Chat /></Layout>} />
+                  <Route path="/upload" element={<Layout><Upload /></Layout>} />
+                  <Route path="/write" element={<Layout><Write /></Layout>} />
                   <Route path="/read/:bookId" element={<BookReader />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/author/:authorId" element={<AuthorProfile />} />
-                  <Route path="/support" element={<Support />} />
-                  <Route path="/support/contact" element={<SupportForm />} />
-                  <Route path="/release-notes" element={<ReleaseNotes />} />
+                  <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+                  <Route path="/admin" element={<Layout><Admin /></Layout>} />
+                  <Route path="/author/:authorId" element={<Layout><AuthorProfile /></Layout>} />
+                  <Route path="/support" element={<Layout><Support /></Layout>} />
+                  <Route path="/support/contact" element={<Layout><SupportForm /></Layout>} />
+                  <Route path="/release-notes" element={<Layout><ReleaseNotes /></Layout>} />
                   <Route path="/onboarding" element={<Onboarding />} />
                   <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
-                  <Route path="/purchase-success" element={<PurchaseSuccess />} />
-                  <Route path="/tip-success" element={<TipSuccess />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/crypto-publishing" element={<CryptoPublishing />} />
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="/purchase-success" element={<Layout><PurchaseSuccess /></Layout>} />
+                  <Route path="/tip-success" element={<Layout><TipSuccess /></Layout>} />
+                  <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
+                  <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
+                  <Route path="/crypto-publishing" element={<Layout><CryptoPublishing /></Layout>} />
+                  <Route path="*" element={<Layout><NotFound /></Layout>} />
                 </Routes>
               </div>
               <Toaster />

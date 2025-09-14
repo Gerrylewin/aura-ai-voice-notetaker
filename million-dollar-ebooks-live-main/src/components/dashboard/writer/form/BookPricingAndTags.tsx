@@ -60,22 +60,31 @@ export function BookPricingAndTags({
     <div className="space-y-6">
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Individual Book Price ($) *
+          Book Price
         </label>
-        <Input
-          type="number"
-          step="0.01"
-          min="0.00"
-          max="1.00"
-          value={(priceCents / 100).toFixed(2)}
-          onChange={(e) => handlePriceChange(e.target.value)}
-          placeholder="0.50"
-          className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
-          required
-        />
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          Price must be between $0.00 and $1.00 (use $0.00 for free books)
-        </p>
+        <div className="space-y-3">
+          <div className="flex items-center space-x-3">
+            <Button
+              type="button"
+              variant={priceCents === 0 ? "default" : "outline"}
+              onClick={() => onPriceChange(0)}
+              className={priceCents === 0 ? "bg-accent text-accent-foreground" : ""}
+            >
+              Free
+            </Button>
+            <Button
+              type="button"
+              variant={priceCents === 100 ? "default" : "outline"}
+              onClick={() => onPriceChange(100)}
+              className={priceCents === 100 ? "bg-primary text-primary-foreground" : ""}
+            >
+              $1.00
+            </Button>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            All books are priced at $1.00 or free. This keeps pricing simple for readers and maximizes accessibility.
+          </p>
+        </div>
       </div>
 
       {isPartOfSeries && onIsLastInSeriesChange && (

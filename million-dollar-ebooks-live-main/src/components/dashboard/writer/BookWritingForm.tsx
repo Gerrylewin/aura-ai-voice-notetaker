@@ -11,7 +11,7 @@ import { BookCoverUpload } from './form/BookCoverUpload';
 import { BookPricingAndTags } from './form/BookPricingAndTags';
 import { BookFormActions } from './form/BookFormActions';
 import { BookPreview } from './form/BookPreview';
-import { ContentImport } from './ContentImport';
+import { DragDropImport } from './DragDropImport';
 
 interface BookData {
   title: string;
@@ -42,7 +42,7 @@ export function BookWritingForm({ editingBook, onEditComplete }: BookWritingForm
     title: '',
     description: '',
     content: '',
-    price_cents: 50, // Default to $0.50
+    price_cents: 100, // Default to $1.00 (simplified pricing)
     tags: [],
     is_part_of_series: false,
     is_last_in_series: false,
@@ -59,7 +59,7 @@ export function BookWritingForm({ editingBook, onEditComplete }: BookWritingForm
         title: editingBook.title || '',
         description: editingBook.description || '',
         content: editingBook.preview_text || '',
-        price_cents: editingBook.price_cents || 50,
+        price_cents: editingBook.price_cents || 100, // Default to $1.00
         tags: editingBook.tags || [],
         cover_image_url: editingBook.cover_image_url,
         series_name: editingBook.series_name,
@@ -140,15 +140,21 @@ export function BookWritingForm({ editingBook, onEditComplete }: BookWritingForm
         }
       }
       
+      // Enforce $1.00 maximum pricing
+      const validatedPriceCents = Math.min(Math.max(bookData.price_cents, 0), 100);
+      const validatedSeriesPriceCents = bookData.series_price_cents 
+        ? Math.min(Math.max(bookData.series_price_cents, 0), 100)
+        : null;
+
       const bookDataToSave = {
         title: bookData.title,
         description: bookData.description,
         preview_text: bookData.content,
-        price_cents: bookData.price_cents,
+        price_cents: validatedPriceCents, // Enforce $1.00 max
         tags: bookData.tags,
         cover_image_url: bookData.cover_image_url,
         series_name: bookData.is_part_of_series ? bookData.series_name : null,
-        series_price_cents: bookData.is_part_of_series && bookData.is_last_in_series ? bookData.series_price_cents : null,
+        series_price_cents: bookData.is_part_of_series && bookData.is_last_in_series ? validatedSeriesPriceCents : null,
         author_id: user.id,
         author_name: profile.display_name || profile.username || 'Unknown Author',
         book_status: bookStatus,
@@ -289,9 +295,9 @@ export function BookWritingForm({ editingBook, onEditComplete }: BookWritingForm
 
   if (showImport) {
     return (
-      <ContentImport
+      <DragDropImport
         onImport={handleImport}
-        onCancel={() => setShowImport(false)}
+        onClose={() => setShowImport(false)}
       />
     );
   }
