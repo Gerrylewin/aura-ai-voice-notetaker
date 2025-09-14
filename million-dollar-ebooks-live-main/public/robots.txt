@@ -1,0 +1,31 @@
+
+User-agent: *
+Allow: /
+
+# Important pages for crawling
+Allow: /discover
+Allow: /stories
+Allow: /library
+Allow: /author/*
+
+# Sitemap location
+Sitemap: https://dollarebooks.app/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Allow social media bots
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
